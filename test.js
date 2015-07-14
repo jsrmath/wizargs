@@ -10,4 +10,16 @@ describe('#func', function () {
   	});
   	foo(0, 1, 2);
   });
+
+  it('should create a function with default arguments', function () {
+  	var foo = wiz.func(wiz.default('a', 5), function (args) {
+  	  assert.equal(args.a, 5);
+  	});
+  	foo();
+
+  	var bar = wiz.func(wiz.default('a', 5), function (args) {
+  	  assert.equal(args.a, 3);
+  	});
+  	bar(3);
+  });
 });
