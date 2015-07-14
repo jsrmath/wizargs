@@ -1,20 +1,39 @@
 var _ = require('underscore');
 
-var _default = function (name, val) {
+var ArgumentError = function(message) {
+  var err = new Error();
+  err.message = message;
+  Error.captureStackTrace(err, ArgumentError);
+  return err;
+};
+
+var ifUndef = function (val, def) {
+  return typeof val === 'undefined' ? def : val;
+};
+
+var opt = function (name, val) { // Optional argument, potentially with a default, e.g. wiz.opt('a', 1)
   return {
-    default: true,
+    opt: true,
     name: name,
-    val: val
+    val: ifUndef(val, null)
   };
 };
 
-var parse = function (name, func) {
+var parse = function (name, func) { // Argument that should be parsed, e.g. wiz.parse('a', parseInt)
   return {
     parse: true,
     name: name,
     func: func
   };
 };
+
+var must = function (name, func) { // Argument that when passed to a given function must return true
+  return {
+    must: true,
+    name: name,
+    func: func
+  }
+}
 
 // Take arguments and actual values and return object
 var makeArgs = function (args, vals) {
@@ -24,16 +43,26 @@ var makeArgs = function (args, vals) {
     if (typeof(arg) === 'string') { // Regular argument, e.g. 'a'
       argObj[arg] = vals[i];
     }
-    else if (arg.default) { // Argument that has a default, e.g. wiz.default('a', 1)
-      argObj[arg.name] = vals[i] || arg.val;
+    else if (arg.opt) {
+      argObj[arg.name] = ifUndef(vals[i], arg.val);
     }
-    else if (arg.parse) { // Argument that should be parsed, e.g. wiz.parse('a', parseInt)
+    else if (arg.parse) {
       argObj[arg.name] = arg.func(vals[i]);
+    }
+    else if (arg.must) {
+      if (!arg.func(vals[i])) {
+        throw new ArgumentError('Argument "' + arg.name + '" failed `must` condition.');
+      }
+      argObj[arg.name] = vals[i];
     }
   });
 
   return argObj;
 };
+
+module.exports.opt = opt;
+module.exports.parse = parse;
+module.exports.must = must;
 
 module.exports.func = function (/* arguments */) {
   var func = _.last(arguments);
@@ -41,9 +70,6 @@ module.exports.func = function (/* arguments */) {
 
   return function () { // Return function that takes arbitrary number of arguments
     var argObj = makeArgs(args, arguments)
-    func(argObj); // Call function with argument object
+    return func(argObj); // Call function with argument object
   };
 };
-
-module.exports.default = _default;
-module.exports.parse = parse;
