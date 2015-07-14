@@ -1,0 +1,25 @@
+{
+  "name": "wizargs",
+  "version": "0.0.0",
+  "description": "A utility for defining functions with complex arguments",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsrmath/wizargs"
+  },
+  "keywords": [
+    "arguments",
+    "splats"
+  ],
+  "author": "Julian Rosenblum <jsrmath@gmail.com> (http://julianrosenblum.com/)",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/jsrmath/wizargs/issues"
+  },
+  "devDependencies": {
+    "mocha": "~2.2.5"
+  }
+}
